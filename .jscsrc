@@ -1,0 +1,10 @@
+{
+    "preset": "loris",
+
+    "excludeFiles": [
+        "node_modules/**",
+        "*/**/*.deps.js"
+    ],
+    "fileExtensions": [".js", ".bemhtml"],
+    "maximumLineLength": false
+}
