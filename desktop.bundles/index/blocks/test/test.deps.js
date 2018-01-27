@@ -1,0 +1,12 @@
+([
+    {
+        shouldDeps: [
+            {
+                elems: [
+                    'el'
+                ]
+            },
+            'button'
+        ]
+    }
+])
