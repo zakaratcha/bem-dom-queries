@@ -14,5 +14,4 @@ npm-debug.log
 !*bundles*/.bem/*
 *pages*/*/*.*
 !*pages*/*/*.bemjson.js
-!*pages*/*/blocks/*
 !*pages*/.bem/*
