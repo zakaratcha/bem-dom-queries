@@ -38,6 +38,18 @@ module.exports = {
                 { tag: 'h2', content: 'islands theme' },
 
                 {
+                    block: 'test',
+                    content: [
+                        {
+                            elem: 'el'
+                        },
+                        {
+                            block: 'test2'
+                        }
+                    ]
+                },
+
+                {
                     block: 'table',
                     tag: 'table',
                     attrs: { style: 'table-layout: fixed; width: 600px' },
