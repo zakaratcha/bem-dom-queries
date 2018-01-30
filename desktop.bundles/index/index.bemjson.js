@@ -1,6 +1,6 @@
 module.exports = {
     block: 'page',
-    title: 'Title of the page',
+    title: 'test',
     favicon: '/favicon.ico',
     head: [
         {elem: 'meta', attrs: {name: 'description', content: ''}},
