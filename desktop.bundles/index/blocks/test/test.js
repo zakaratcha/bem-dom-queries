@@ -38,7 +38,9 @@ modules.define('test', [
 
                         '.test__el_num_1': [
                             {elem: 'el', mods: {num: 1}},
-                            {elem: 'el', mods: {num: [1]}}
+                            {elem: 'el', mods: {num: '1'}},
+                            {elem: 'el', mods: {num: [1]}},
+                            {elem: 'el', mods: {num: ['1']}}
                         ],
 
                         '.test__el_mod1_val1,.test__el_mod1_val2': [
@@ -114,7 +116,8 @@ modules.define('test', [
                                 elem: 'inner',
                                 mix: {
                                     elem: 'button',
-                                    mods: {}
+                                    mods: {},
+                                    attrs: {}
                                 }
                             },
                             {
