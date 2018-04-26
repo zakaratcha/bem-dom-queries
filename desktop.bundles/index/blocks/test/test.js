@@ -23,6 +23,8 @@ modules.define('test', [
                         '.test__el': [
                             TestEl,
                             {elem: TestEl},
+                            // если есть класс, то block будет проигнорирован
+                            {block: 'something', elem: TestEl},
                             {elem: 'el'},
                             'el'
                         ],
@@ -229,7 +231,7 @@ modules.define('test', [
                 console.log.apply(console, arguments);
             }
         },
-        _buildSelector: function (query, ctx) {
+        _buildSelector: function (query, ctx, isMix) {
             var ELEM_DELIM = bemInternal.ELEM_DELIM;
 
             // узнать block и elem
@@ -250,19 +252,34 @@ modules.define('test', [
             }
 
             // иначе должен быть передан объект, у которого обязательно есть
-            // одно из полей: block или elem
+            // как минимум одно из полей: block или elem
             if (typeof query !== 'object' || (!query.block && !query.elem)) {
                 throw new Error('Invalid query');
             }
 
             var block;
+
             var elem;
+
+            // если в качестве elem указан класс - берем block и elem из него
+            if (functions.isFunction(query.elem)) {
+                block = query.elem._blockName;
+                elem = query.elem._name;
+            }
+
+            var mods = {};
+            var mix;
+
+            console.log(bemInternal.buildClassName(block, elem), '$$$$$$$$$$$$$$$');
+            console.log(bemInternal.buildClassName, '55555555555');
+
+            return bemInternal.buildClassName(block, elem);
 
             /*
             var entityName = functions.isFunction(entity) ?
                 entity.getEntityName() :
-            //***********************************************
                 typeof entity === 'object' ?
+            //***********************************************
                     entity.block ?
                         entity.block.getEntityName() :
                         typeof entity.elem === 'string' ?
@@ -303,4 +320,16 @@ modules.define('test', [
             return '***';
         }
     }));
+
+    /*
+     *
+     * findChild
+     * findChilds
+     * findParent
+     * findParents
+     * findMix
+     * findMixes
+     * findGlobal //??
+     *
+     */
 });
