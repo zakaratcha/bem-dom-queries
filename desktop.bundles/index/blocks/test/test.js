@@ -4,6 +4,7 @@ modules.define('test', [
     'test2',
     'test__el',
     'functions',
+    'jquery',
     'i-bem-dom'
 ], function (
         provide,
@@ -12,14 +13,18 @@ modules.define('test', [
         Test2,
         TestEl,
         functions,
+        $,
         bemDom) {
     provide(bemDom.declBlock(this.name, {
         onSetMod: {
             js: {
                 inited: function () {
+                    window.$ = $;
+
                     var test = this;
                     var testQueries = {
 
+                        // 1)
                         '.test__el': [
                             TestEl,
                             {elem: TestEl},
@@ -28,15 +33,18 @@ modules.define('test', [
                             'el'
                         ],
 
+                        // 2)
                         '.test__el_modifyed': [
                             {elem: TestEl, mods: {modifyed: true}}
                         ],
 
+                        // 3)
                         '.test__el_mod1_val1': [
                             {elem: 'el', mods: {mod1: 'val1'}},
                             {elem: 'el', mods: {mod1: ['val1']}}
                         ],
 
+                        // 4)
                         '.test__el_num_1': [
                             {elem: 'el', mods: {num: 1}},
                             {elem: 'el', mods: {num: '1'}},
@@ -44,14 +52,17 @@ modules.define('test', [
                             {elem: 'el', mods: {num: ['1']}}
                         ],
 
+                        // 5)
                         '.test__el_mod1_val1,.test__el_mod1_val2': [
                             {elem: 'el', mods: {mod1: ['val1', 'val2']}}
                         ],
 
+                        // 6)
                         '[class*="test__el_modifyed_"],.test__el_modifyed': [
                             {elem: 'el', mods: {modifyed: '*'}}
                         ],
 
+                        // 7)
                         // eslint-disable-next-line max-len
                         '.test__el_mod1_val1,.test__el_mod1_val2,[class*="test__el_mod2"],.test__el_mod2': [
                             {
@@ -68,22 +79,25 @@ modules.define('test', [
                             }
                         ],
 
-                        '.test__el:not(.test__el_modifyed)': [
-                            {elem: TestEl, mods: {modifyed: false}},
+                        // 8)
+                        '.test__el:not([class*="test__el_modifyed"])': [
                             {elem: 'el', mods: {modifyed: false}},
                             {elem: 'el', mods: {modifyed: ''}}
                         ],
 
+                        // 9)
                         '.button': [
                             Button,
                             {block: Button}
                         ],
 
+                        // 10)
                         '.test__button.button': [
                             {elem: 'button', mix: Button},
                             {elem: 'button', mix: {block: Button}}
                         ],
 
+                        // 11)
                         '.button.test__button.test__action_type_submit': [
                             {
                                 block: Button,
@@ -111,6 +125,7 @@ modules.define('test', [
                             }
                         ],
 
+                        // 12)
                         '.button__inner.test__button': [
                             {
                                 block: Button,
@@ -130,6 +145,7 @@ modules.define('test', [
                             }
                         ],
 
+                        // 13)
                         '.button[id="uniq"]': [
                             {
                                 block: Button,
@@ -145,6 +161,7 @@ modules.define('test', [
                             }
                         ],
 
+                        // 14)
                         '.test2[src="http://ya.ru"][src="http://yandex.ru"][class~="link"]': [
                             {
                                 block: Test2,
@@ -155,6 +172,7 @@ modules.define('test', [
                             }
                         ],
 
+                        // 15)
                         'button.button__inner.test__button TODO: дописать эту жесть': [
                             {
                                 tag: 'button',
@@ -233,7 +251,7 @@ modules.define('test', [
             }
         },
 
-        _buildSelector: function (query, ctx, isMix) {
+        _buildSelector: function (query, ctx) {
             var ELEM_DELIM = bemInternal.ELEM_DELIM;
             var MOD_DELIM = bemInternal.MOD_DELIM;
 
@@ -272,19 +290,18 @@ modules.define('test', [
             }
 
             // mods
-            var mods;
+            var modsArr = [];
             if (query.mods) {
-                mods = [];
                 Object.keys(query.mods).forEach(function (modName) {
                     if (Array.isArray(query.mods[modName])) {
                         query.mods[modName].forEach(function (modVal) {
-                            mods.push({
+                            modsArr.push({
                                 name: modName,
                                 val: modVal
                             });
                         });
                     } else {
-                        mods.push({
+                        modsArr.push({
                             name: modName,
                             val: query.mods[modName]
                         });
@@ -292,25 +309,56 @@ modules.define('test', [
                 });
             }
 
+            var entityClass = blockName + (elemName ? ELEM_DELIM + elemName : '');
+            var entitySelector = (query.tag || '') + '.' + entityClass;
+
+            var strArr = [];
+            var suffixes = [];
+            var postfixes = [];
+
+            modsArr.forEach(function (mod) {
+                if (mod.val === '*') {
+                    strArr.push('[class*="' +
+                                        entityClass +
+                                        MOD_DELIM +
+                                        mod.name +
+                                        MOD_DELIM +
+                                        '"]');
+                    strArr.push(entitySelector + MOD_DELIM + mod.name);
+                } else if (mod.val === '' || mod.val === false) {
+                    postfixes.push(':not([class*="' + entityClass + MOD_DELIM + mod.name + '"])');
+                } else {
+                    strArr.push(entitySelector + MOD_DELIM + mod.name +
+                            (mod.val === true ? '' : MOD_DELIM + mod.val));
+                }
+            });
+
+            var mixes;
+
+            if (!strArr.length) {
+                strArr.push(entitySelector);
+            }
+
+            suffixes.forEach(function (suffix) {
+                strArr = strArr.map(function (str) {
+                    return str + suffix;
+                });
+            });
+
+            postfixes.forEach(function (postfix) {
+                strArr = strArr.map(function (str) {
+                    return str + postfix;
+                });
+            });
+
+            return strArr.join(',');
+
             // + узнать block и elem
             // + mods
             // mix
             // tag
             // attrs
             // склеить всю эту срань
-
-            var mixes;
-
-            var entityClass = (query.tag || '') + '.' + blockName + (elemName ? ELEM_DELIM + elemName : '');
-
-            if (mods) {
-                return mods.map(function (mod) {
-                    return entityClass + MOD_DELIM + mod.name +
-                            (mod.val === true ? '' : MOD_DELIM + mod.val);
-                }).join(',');
-            }
-
-            return entityClass;
 
             /*
             var entityName = functions.isFunction(entity) ?
@@ -354,7 +402,6 @@ modules.define('test', [
 
             return new BemDomCollection(res);
             */
-            return '***';
         }
     }));
 
