@@ -64,7 +64,7 @@ modules.define('test', [
 
                         // 7)
                         // eslint-disable-next-line max-len
-                        '.test__el_mod1_val1,.test__el_mod1_val2,[class*="test__el_mod2"],.test__el_mod2': [
+                        '.test__el_mod1_val1,.test__el_mod1_val2,[class*="test__el_mod2_"],.test__el_mod2': [
                             {
                                 elem: 'el', mods: {
                                     mod1: ['val1', 'val2'],
@@ -359,6 +359,7 @@ modules.define('test', [
             // tag
             // attrs
             // склеить всю эту срань
+            // избежать коллизий вида .test_m_v .blah-test_m_v в селекторах с маской
 
             /*
             var entityName = functions.isFunction(entity) ?
