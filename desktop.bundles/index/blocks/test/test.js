@@ -23,8 +23,7 @@ modules.define('test', [
                         '.test__el': [
                             TestEl,
                             {elem: TestEl},
-                            // если есть класс, то block будет проигнорирован
-                            {block: 'something', elem: TestEl},
+                            {block: 'something-should-be-ignored', elem: TestEl},
                             {elem: 'el'},
                             'el'
                         ],
@@ -190,14 +189,14 @@ modules.define('test', [
                     var successQueries = 0;
                     var totalQueries = 0;
 
-                    keys.forEach(function (key) {
+                    keys.forEach(function (key, caseNumber) {
                         var ok = true;
-                        testQueries[key].forEach(function (query) {
+                        testQueries[key].forEach(function (query, queryNumber) {
                             var result = test._buildSelector(query, test);
                             if (result !== key) {
-                                test._log('Building selector error');
-                                test._log('must be: ', key);
-                                test._log('builded: ', result);
+                                test._log('selector ' + (caseNumber + 1) + '.' +
+                                        (queryNumber + 1) + ' error: ', key +
+                                        ' ### ' + result);
                                 ok = false;
                             } else {
                                 successQueries++;
@@ -205,7 +204,7 @@ modules.define('test', [
                             totalQueries++;
                         });
                         if (ok) {
-                            test._log('OK: ', key);
+                            test._log(caseNumber + 1 + ') OK ', key);
                             successSelectors++;
                         }
                     });
@@ -224,22 +223,19 @@ modules.define('test', [
             }
         },
 
+//        _logging: false,
         _logging: true,
+
         _log: function () {
             if (this._logging) {
                 // eslint-disable-next-line no-console
                 console.log.apply(console, arguments);
             }
         },
+
         _buildSelector: function (query, ctx, isMix) {
             var ELEM_DELIM = bemInternal.ELEM_DELIM;
-
-            // узнать block и elem
-            // tag
-            // запомнить селекторы модификаторов в массивы
-            // запомнить миксы в массивы
-            // запомнить аттрибуты
-            // склеить всю эту срань
+            var MOD_DELIM = bemInternal.MOD_DELIM;
 
             // передан класс
             if (functions.isFunction(query)) {
@@ -257,23 +253,64 @@ modules.define('test', [
                 throw new Error('Invalid query');
             }
 
-            var block;
+            var blockName;
+            var elemName;
 
-            var elem;
-
-            // если в качестве elem указан класс - берем block и elem из него
+            // если в качестве elem указан класс - берем blockName и elemName из него
             if (functions.isFunction(query.elem)) {
-                block = query.elem._blockName;
-                elem = query.elem._name;
+                blockName = query.elem._blockName;
+                elemName = query.elem._name;
             }
 
-            var mods = {};
-            var mix;
+            if (typeof query.elem === 'string') {
+                elemName = query.elem;
+            }
 
-            console.log(bemInternal.buildClassName(block, elem), '$$$$$$$$$$$$$$$');
-            console.log(bemInternal.buildClassName, '55555555555');
+            // если blockName всё еще не известен - берем из контекста
+            if (!blockName) {
+                blockName = ctx.__self._blockName;
+            }
 
-            return bemInternal.buildClassName(block, elem);
+            // mods
+            var mods;
+            if (query.mods) {
+                mods = [];
+                Object.keys(query.mods).forEach(function (modName) {
+                    if (Array.isArray(query.mods[modName])) {
+                        query.mods[modName].forEach(function (modVal) {
+                            mods.push({
+                                name: modName,
+                                val: modVal
+                            });
+                        });
+                    } else {
+                        mods.push({
+                            name: modName,
+                            val: query.mods[modName]
+                        });
+                    }
+                });
+            }
+
+            // + узнать block и elem
+            // + mods
+            // mix
+            // tag
+            // attrs
+            // склеить всю эту срань
+
+            var mixes;
+
+            var entityClass = (query.tag || '') + '.' + blockName + (elemName ? ELEM_DELIM + elemName : '');
+
+            if (mods) {
+                return mods.map(function (mod) {
+                    return entityClass + MOD_DELIM + mod.name +
+                            (mod.val === true ? '' : MOD_DELIM + mod.val);
+                }).join(',');
+            }
+
+            return entityClass;
 
             /*
             var entityName = functions.isFunction(entity) ?
