@@ -15,6 +15,9 @@ modules.define('test', [
         functions,
         $,
         bemDom) {
+    var ELEM_DELIM = bemInternal.ELEM_DELIM;
+    var MOD_DELIM = bemInternal.MOD_DELIM;
+
     provide(bemDom.declBlock(this.name, {
         onSetMod: {
             js: {
@@ -28,7 +31,6 @@ modules.define('test', [
                         '.test__el': [
                             TestEl,
                             {elem: TestEl},
-                            {block: 'something-should-be-ignored', elem: TestEl},
                             {elem: 'el'},
                             'el'
                         ],
@@ -132,8 +134,7 @@ modules.define('test', [
                                 elem: 'inner',
                                 mix: {
                                     elem: 'button',
-                                    mods: {},
-                                    attrs: {}
+                                    mods: {}
                                 }
                             },
                             {
@@ -146,39 +147,9 @@ modules.define('test', [
                         ],
 
                         // 13)
-                        '.button[id="uniq"]': [
+                        // eslint-disable-next-line max-len
+                        '.button__inner_someMod:not([class*="button__inner_someOther"]).test__button_mod1_val1:not([class*="test__button_mod3"]).test__button_mod1_val2:not([class*="test__button_mod3"])[class*="test__button_mod2_"]:not([class*="test__button_mod3"]).test__button_mod2:not([class*="test__button_mod3"]).test__button_num_4:not([class*="test__button_mod3"])': [
                             {
-                                block: Button,
-                                attrs: {
-                                    id: 'uniq'
-                                }
-                            },
-                            {
-                                block: Button,
-                                attrs: {
-                                    id: ['uniq']
-                                }
-                            }
-                        ],
-
-                        // 14)
-                        '.test2[src="http://ya.ru"][src="http://yandex.ru"][class~="link"]': [
-                            {
-                                block: Test2,
-                                attrs: {
-                                    src: ['http://ya.ru', 'http://yandex.ru'],
-                                    'class~': 'link'
-                                }
-                            }
-                        ],
-
-                        // 15)
-                        'button.button__inner.test__button TODO: дописать эту жесть': [
-                            {
-                                tag: 'button',
-                                attrs: {
-                                    id: 'uniq'
-                                },
                                 block: Button,
                                 elem: 'inner',
                                 mods: {
@@ -241,7 +212,7 @@ modules.define('test', [
             }
         },
 
-//        _logging: false,
+        // _logging: false,
         _logging: true,
 
         _log: function () {
@@ -251,28 +222,25 @@ modules.define('test', [
             }
         },
 
-        _buildSelector: function (query, ctx) {
-            var ELEM_DELIM = bemInternal.ELEM_DELIM;
-            var MOD_DELIM = bemInternal.MOD_DELIM;
-
+        _buildBaseClass: function (query, ctx) {
             // передан класс
             if (functions.isFunction(query)) {
-                return '.' + query.getEntityName();
+                return query.getEntityName();
             }
 
             // передана строка - имя элемента
             if (typeof query === 'string') {
-                return '.' + ctx.__self._blockName + ELEM_DELIM + query;
+                return ctx.__self._blockName + ELEM_DELIM + query;
             }
+
+            var blockName;
+            var elemName;
 
             // иначе должен быть передан объект, у которого обязательно есть
             // как минимум одно из полей: block или elem
             if (typeof query !== 'object' || (!query.block && !query.elem)) {
                 throw new Error('Invalid query');
             }
-
-            var blockName;
-            var elemName;
 
             // если в качестве elem указан класс - берем blockName и elemName из него
             if (functions.isFunction(query.elem)) {
@@ -284,13 +252,26 @@ modules.define('test', [
                 elemName = query.elem;
             }
 
-            // если blockName всё еще не известен - берем из контекста
+            if (typeof query.block === 'string') {
+                throw new Error('Invalid query');
+            }
+
+            if (functions.isFunction(query.block)) {
+                blockName = query.block._blockName;
+            }
+
             if (!blockName) {
                 blockName = ctx.__self._blockName;
             }
 
-            // mods
+            return blockName + (elemName ? ELEM_DELIM + elemName : '');
+        },
+
+        _modsToStrArr: function (query, baseClass, baseSelector) {
+            var strArr = [];
             var modsArr = [];
+            var postfixes = [];
+
             if (query.mods) {
                 Object.keys(query.mods).forEach(function (modName) {
                     if (Array.isArray(query.mods[modName])) {
@@ -309,41 +290,26 @@ modules.define('test', [
                 });
             }
 
-            var entityClass = blockName + (elemName ? ELEM_DELIM + elemName : '');
-            var entitySelector = (query.tag || '') + '.' + entityClass;
-
-            var strArr = [];
-            var suffixes = [];
-            var postfixes = [];
-
             modsArr.forEach(function (mod) {
                 if (mod.val === '*') {
                     strArr.push('[class*="' +
-                                        entityClass +
+                                        baseClass +
                                         MOD_DELIM +
                                         mod.name +
                                         MOD_DELIM +
                                         '"]');
-                    strArr.push(entitySelector + MOD_DELIM + mod.name);
+                    strArr.push(baseSelector + MOD_DELIM + mod.name);
                 } else if (mod.val === '' || mod.val === false) {
-                    postfixes.push(':not([class*="' + entityClass + MOD_DELIM + mod.name + '"])');
+                    postfixes.push(':not([class*="' + baseClass + MOD_DELIM + mod.name + '"])');
                 } else {
-                    strArr.push(entitySelector + MOD_DELIM + mod.name +
+                    strArr.push(baseSelector + MOD_DELIM + mod.name +
                             (mod.val === true ? '' : MOD_DELIM + mod.val));
                 }
             });
 
-            var mixes;
-
             if (!strArr.length) {
-                strArr.push(entitySelector);
+                strArr.push(baseSelector);
             }
-
-            suffixes.forEach(function (suffix) {
-                strArr = strArr.map(function (str) {
-                    return str + suffix;
-                });
-            });
 
             postfixes.forEach(function (postfix) {
                 strArr = strArr.map(function (str) {
@@ -351,70 +317,49 @@ modules.define('test', [
                 });
             });
 
+            return strArr;
+        },
+
+        _buildSelector: function (query, ctx) {
+            var _this = this;
+            var baseClass = this._buildBaseClass(query, ctx);
+            var baseSelector = '.' + baseClass;
+
+            var strArr = this._modsToStrArr(query, baseClass, baseSelector);
+
+            if (!strArr.length) {
+                strArr.push(baseSelector);
+            }
+
+            var mixes = Array.isArray(query.mix) ? query.mix : (query.mix ? [query.mix] : []);
+
+            var mixPostfixes = [];
+            mixes.forEach(function (mix) {
+                var mixBaseClass = _this._buildBaseClass(mix, ctx);
+                var mixBaseSelector = '.' + mixBaseClass;
+                var mixStrArr = _this._modsToStrArr(mix, mixBaseClass, mixBaseSelector);
+                mixPostfixes = mixPostfixes.concat(mixStrArr);
+            });
+
+            mixPostfixes.forEach(function (mixPostfix) {
+                strArr = strArr.map(function (str) {
+                    return str + mixPostfix;
+                });
+            });
+
             return strArr.join(',');
 
             // + узнать block и elem
             // + mods
-            // mix
-            // tag
-            // attrs
-            // склеить всю эту срань
+            // + mix
             // избежать коллизий вида .test_m_v .blah-test_m_v в селекторах с маской
-
-            /*
-            var entityName = functions.isFunction(entity) ?
-                entity.getEntityName() :
-                typeof entity === 'object' ?
-            //***********************************************
-                    entity.block ?
-                        entity.block.getEntityName() :
-                        typeof entity.elem === 'string' ?
-                            this.__self._blockName + ELEM_DELIM + entity.elem :
-                            entity.elem.getEntityName() :
-                    this.__self._blockName + ELEM_DELIM + entity,
-                selector = '.' +
-                (typeof entity === 'object' ?
-                    buildClassName(
-                        entityName,
-                        entity.modName,
-                        typeof entity.modVal === 'undefined' ?
-                            true :
-                            entity.modVal) :
-                    entityName) +
-                (onlyFirst ? ':first' : ''),
-                domElems = this.domElem[select](selector);
-
-            if (onlyFirst) {
-                return domElems[0] ?
-            initEntity(entityName, domElems.eq(0), undef, true)._setInitedMod() :
-            null;
-            }
-
-            var res = [],
-                uniqIds = {};
-
-            domElems.each(function (i, domElem) {
-                var block = initEntity(entityName, $(domElem), undef, true)._setInitedMod();
-                if (!uniqIds[block._uniqId]) {
-                    uniqIds[block._uniqId] = true;
-                    res.push(block);
-                }
-            });
-
-            return new BemDomCollection(res);
-            */
+            // расширить BemDomEntity своим набором методов (см. _findEntities)
+            //      findChild
+            //      findChilds
+            //      findParent
+            //      findParents
+            //      findMix
+            //      findMixes
         }
     }));
-
-    /*
-     *
-     * findChild
-     * findChilds
-     * findParent
-     * findParents
-     * findMix
-     * findMixes
-     * findGlobal //??
-     *
-     */
 });
