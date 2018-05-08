@@ -352,7 +352,7 @@ module.exports = {
                                 block: 'pad',
                                 elem: 'item'
                             },
-                            text: 'test1.findChilds({elem: \'el\', mods: {mod2: \'*\'}})'
+                            text: 'test1.findChilds({elem: Test1El, mods: {mod2: \'*\'}})'
                         }
 
                     ]
