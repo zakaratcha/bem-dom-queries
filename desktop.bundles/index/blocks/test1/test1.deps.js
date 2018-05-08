@@ -6,7 +6,7 @@
                     'el'
                 ]
             },
-            'button',
+            'test0',
             'test2',
             'functions'
         ]

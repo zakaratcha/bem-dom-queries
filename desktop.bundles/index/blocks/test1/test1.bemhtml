@@ -1,0 +1,1 @@
+block('test1').js()(true);

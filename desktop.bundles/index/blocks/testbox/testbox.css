@@ -1,0 +1,32 @@
+.testbox
+{
+    position: relative;
+
+    min-width: 120px;
+    min-height: 30px;
+    margin-bottom: 20px;
+    padding: 20px 20px 0 20px;
+
+    border: 2px silver solid;
+}
+
+.testbox__title
+{
+    position: absolute;
+    top: -0.9em;
+    left: 7px;
+
+    padding: 3px 5px;
+
+    background: white;
+}
+
+.testbox_current
+{
+    border-color: green;
+}
+
+.testbox_found
+{
+    border-color: red;
+}
