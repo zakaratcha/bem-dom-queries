@@ -170,14 +170,12 @@ modules.define('test1', [
                     var successSelectors = 0;
                     var successQueries = 0;
                     var totalQueries = 0;
-                    var BemDomEntity = Object.getPrototypeOf(
-                            Object.getPrototypeOf(
-                                Object.getPrototypeOf(this)));
+                    console.log('test1', window.t = this);
 
                     keys.forEach(function (key, caseNumber) {
                         var ok = true;
                         testQueries[key].forEach(function (query, queryNumber) {
-                            var result = BemDomEntity._buildSelector(query, test);
+                            var result = test._buildSelectorByQuery(query, test);
                             if (result !== key) {
                                 test._log('selector ' + (caseNumber + 1) + '.' +
                                         (queryNumber + 1) + ' error: ', key +

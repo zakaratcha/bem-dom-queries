@@ -6,12 +6,6 @@
  * Копия i-bem-dom.js из bem-core. Добавленный код обозначен комментариями
  * вида // ДОБАВЛЕНО:
  *
- * Добавлены методы findChild, findChilds, findParent, findParents, findMix, findMixes.
- *
- * В дальнейшем нужно будет либо отрефакторить i-bem-dom.js, чтобы всё необходимое
- * для прикручивания подобного функционала в виде плагинов торчало наружу, либо
- * включить добавленные методы в базовый i-bem-dom.js
- *
  */
 
 /**
@@ -184,8 +178,8 @@ function getEntityCls(entityName) {
 
     var splitted = entityName.split(ELEM_DELIM);
     return splitted[1]?
-        bemDom.declElem(splitted[0], splitted[1], {}, { lazyInit : true }, true) :
-        bemDom.declBlock(entityName, {}, { lazyInit : true }, true);
+        bemDom.declElem(splitted[0], splitted[1], {}, { lazyInit : true }) :
+        bemDom.declBlock(entityName, {}, { lazyInit : true });
 }
 
 /**
@@ -257,7 +251,7 @@ function extractParams(domNode) {
  */
 function removeDomNodeFromEntity(entity, domNode) {
     if(entity.domElem.length === 1) {
-        entity._delInitedMod();
+        entity.delMod('js');
         delete uniqIdToEntity[entity._uniqId];
     } else {
         entity.domElem = entity.domElem.not(domNode);
@@ -337,134 +331,25 @@ function validateBlockParam(Block) {
     }
 }
 
+/**
+ * Returns base entities for declaration
+ * @param {Function} baseCls block|elem class
+ * @param {String} entityName entityName
+ * @param {Function|Array[Function]} [base] base block|elem + mixes
+ * @returns {Array<Function>}
+ */
+function getEntityBase(baseCls, entityName, base) {
+    base || (base = entities[entityName] || baseCls);
 
-// ДОБАВЛЕНО: функции-хелперы для bem-dom-queries
+    Array.isArray(base) || (base = [base]);
 
-var buildBaseClass = function (query, ctx) {
-    if (functions.isFunction(query)) {
-        return query.getEntityName();
+    if(!base[0].__bemEntity) {
+        base = base.slice();
+        base.unshift(entities[entityName] || baseCls);
     }
 
-    if (typeof query === 'string') {
-        return ctx.__self._blockName + ELEM_DELIM + query;
-    }
-
-    var blockName;
-    var elemName;
-
-    if (typeof query !== 'object' || (!query.block && !query.elem)) {
-        throw new Error('Invalid query');
-    }
-
-    if (functions.isFunction(query.elem)) {
-        blockName = query.elem._blockName;
-        elemName = query.elem._name;
-    }
-
-    if (typeof query.elem === 'string') {
-        elemName = query.elem;
-    }
-
-    if (typeof query.block === 'string') {
-        throw new Error('Invalid query');
-    }
-
-    if (functions.isFunction(query.block)) {
-        blockName = query.block._blockName;
-    }
-
-    if (!blockName) {
-        blockName = ctx.__self._blockName;
-    }
-
-    return blockName + (elemName ? ELEM_DELIM + elemName : '');
-};
-
-var modsToStrArr = function (query, baseClass, baseSelector) {
-    var strArr = [];
-    var modsArr = [];
-    var postfixes = [];
-
-    // TOTO: mods & elemMods
-    if (query.mods) {
-        Object.keys(query.mods).forEach(function (modName) {
-            if (Array.isArray(query.mods[modName])) {
-                query.mods[modName].forEach(function (modVal) {
-                    modsArr.push({
-                        name: modName,
-                        val: modVal
-                    });
-                });
-            } else {
-                modsArr.push({
-                    name: modName,
-                    val: query.mods[modName]
-                });
-            }
-        });
-    }
-
-    modsArr.forEach(function (mod) {
-        if (mod.val === '*') {
-            strArr.push('[class*="' +
-                        baseClass +
-                        MOD_DELIM +
-                        mod.name +
-                        MOD_DELIM +
-                        '"]');
-            strArr.push(baseSelector + MOD_DELIM + mod.name);
-        } else if (mod.val === '' || mod.val === false) {
-            postfixes.push(':not([class*="' + baseClass + MOD_DELIM + mod.name + '"])');
-        } else {
-            strArr.push(baseSelector + MOD_DELIM + mod.name +
-            (mod.val === true ? '' : MOD_DELIM + mod.val));
-        }
-    });
-
-    if (!strArr.length) {
-        strArr.push(baseSelector);
-    }
-
-    postfixes.forEach(function (postfix) {
-        strArr = strArr.map(function (str) {
-            return str + postfix;
-        });
-    });
-
-    return strArr;
-};
-
-var buildSelector = function (query, ctx) {
-    var baseClass = buildBaseClass(query, ctx);
-    var baseSelector = '.' + baseClass;
-
-    var strArr = modsToStrArr(query, baseClass, baseSelector);
-
-    if (!strArr.length) {
-        strArr.push(baseSelector);
-    }
-
-    var mixes = Array.isArray(query.mix) ? query.mix : (query.mix ? [query.mix] : []);
-
-    var mixPostfixes = [];
-    mixes.forEach(function (mix) {
-        var mixBaseClass = buildBaseClass(mix, ctx);
-        var mixBaseSelector = '.' + mixBaseClass;
-        var mixStrArr = modsToStrArr(mix, mixBaseClass, mixBaseSelector);
-        mixPostfixes = mixPostfixes.concat(mixStrArr);
-    });
-
-    mixPostfixes.forEach(function (mixPostfix) {
-        strArr = strArr.map(function (str) {
-            return str + mixPostfix;
-        });
-    });
-
-    return strArr.join(',');
-};
-
-// /ДОБАВЛЕНО
-
+    return base;
+}
 
 /**
  * @class BemDomEntity
@@ -472,7 +357,7 @@ var buildSelector = function (query, ctx) {
  */
 var BemDomEntity = inherit(/** @lends BemDomEntity.prototype */{
     /**
-     * @constructs
+     * @constructor
      * @private
      * @param {jQuery} domElem DOM element that the entity is created on
      * @param {Object} params parameters
@@ -885,67 +770,9 @@ var BemDomEntity = inherit(/** @lends BemDomEntity.prototype */{
      */
     containsEntity : function(entity) {
         return dom.contains(this.domElem, entity.domElem);
-    },
-
-
-    // ДОБАВЛЕНО: методы bem-dom-queries
-
-    _buildSelector: buildSelector,
-
-    findChild: function (query) {
-        return this._queryEntities('find', query, true);
-    },
-
-    findChilds: function (query) {
-        return this._queryEntities('find', query, false);
-    },
-
-    findParent: function (query) {
-        return this._queryEntities('parents', query, true);
-    },
-
-    findParents: function (query) {
-        return this._queryEntities('parents', query, false);
-    },
-
-    findMix: function (query) {
-        return this._queryEntities('filter', query, true);
-    },
-
-    findMixes: function (query) {
-        return this._queryEntities('filter', query, false);
-    },
-
-    _queryEntities: function (select, query, onlyFirst) {
-        var selector = buildSelector(query, this);
-        var baseClass = buildBaseClass(query, this);
-        var domElems = this.domElem[select](selector);
-
-        if (onlyFirst) {
-            return domElems[0] ?
-                initEntity(baseClass, domElems.eq(0), undef, true)._setInitedMod() :
-                    null;
-        }
-
-        var res = [];
-        var uniqIds = {};
-
-        domElems.each(function(i, domElem) {
-            var block = initEntity(baseClass, $(domElem), undef, true)._setInitedMod();
-            if (!uniqIds[block._uniqId]) {
-                uniqIds[block._uniqId] = true;
-                res.push(block);
-            }
-        });
-
-        return new BemDomCollection(res);
     }
 
-    // /ДОБАВЛЕНО
-
-
 }, /** @lends BemDomEntity */{
-    /** @override */
     /** @override */
     create : function() {
         throw Error('bemDom entities can not be created otherwise than from DOM');
@@ -1132,6 +959,8 @@ bemDom = /** @exports */{
                 blockName;
         }
 
+        base = getEntityBase(Block, blockName, base);
+
         return bem.declBlock(blockName, base, props, staticProps);
     },
 
@@ -1145,11 +974,15 @@ bemDom = /** @exports */{
      * @returns {Function} Elem class
      */
     declElem : function(blockName, elemName, base, props, staticProps) {
+        var entityName = blockName + ELEM_DELIM + elemName;
+
         if(!base || (typeof base === 'object' && !Array.isArray(base))) {
             staticProps = props;
             props = base;
-            base = entities[blockName + ELEM_DELIM + elemName] || Elem;
+            base = entities[entityName] || Elem;
         }
+
+        base = getEntityBase(Elem, entityName, base);
 
         return bem.declElem(blockName, elemName, base, props, staticProps);
     },
@@ -1180,6 +1013,10 @@ bemDom = /** @exports */{
 
         return ctx;
     },
+
+    // ДОБАВЛЕНО
+    _initEntity : initEntity,
+    // /ДОБАВЛЕНО
 
     /**
      * @param {jQuery} ctx Root DOM node
