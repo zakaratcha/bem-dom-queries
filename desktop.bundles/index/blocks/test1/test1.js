@@ -170,7 +170,6 @@ modules.define('test1', [
                     var successSelectors = 0;
                     var successQueries = 0;
                     var totalQueries = 0;
-                    console.log('test1', window.t = this);
 
                     keys.forEach(function (key, caseNumber) {
                         var ok = true;

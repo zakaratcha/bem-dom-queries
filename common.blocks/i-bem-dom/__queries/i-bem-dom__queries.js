@@ -9,7 +9,7 @@ modules.define('i-bem-dom', [
     var MOD_DELIM = bemInternal.MOD_DELIM;
     var ELEM_DELIM = bemInternal.ELEM_DELIM;
 
-    var buildBaseClass = function (query, ctx) {
+    var getEntityName = function (query, ctx) {
         if (functions.isFunction(query)) {
             return query.getEntityName();
         }
@@ -49,7 +49,7 @@ modules.define('i-bem-dom', [
         return blockName + (elemName ? ELEM_DELIM + elemName : '');
     };
 
-    var modsToStrArr = function (query, baseClass, baseSelector) {
+    var modsToStrArr = function (query, entityName, entitySelector) {
         var strArr = [];
         var modsArr = [];
         var postfixes = [];
@@ -76,22 +76,22 @@ modules.define('i-bem-dom', [
         modsArr.forEach(function (mod) {
             if (mod.val === '*') {
                 strArr.push('[class*="' +
-                        baseClass +
+                        entityName +
                         MOD_DELIM +
                         mod.name +
                         MOD_DELIM +
                         '"]');
-                strArr.push(baseSelector + MOD_DELIM + mod.name);
+                strArr.push(entitySelector + MOD_DELIM + mod.name);
             } else if (mod.val === '' || mod.val === false) {
-                postfixes.push(':not([class*="' + baseClass + MOD_DELIM + mod.name + '"])');
+                postfixes.push(':not([class*="' + entityName + MOD_DELIM + mod.name + '"])');
             } else {
-                strArr.push(baseSelector + MOD_DELIM + mod.name +
+                strArr.push(entitySelector + MOD_DELIM + mod.name +
             (mod.val === true ? '' : MOD_DELIM + mod.val));
             }
         });
 
         if (!strArr.length) {
-            strArr.push(baseSelector);
+            strArr.push(entitySelector);
         }
 
         postfixes.forEach(function (postfix) {
@@ -104,22 +104,22 @@ modules.define('i-bem-dom', [
     };
 
     var buildSelector = function (query, ctx) {
-        var baseClass = buildBaseClass(query, ctx);
-        var baseSelector = '.' + baseClass;
+        var entityName = getEntityName(query, ctx);
+        var entitySelector = '.' + entityName;
 
-        var strArr = modsToStrArr(query, baseClass, baseSelector);
+        var strArr = modsToStrArr(query, entityName, entitySelector);
 
         if (!strArr.length) {
-            strArr.push(baseSelector);
+            strArr.push(entitySelector);
         }
 
         var mixes = Array.isArray(query.mix) ? query.mix : (query.mix ? [query.mix] : []);
 
         var mixPostfixes = [];
         mixes.forEach(function (mix) {
-            var mixBaseClass = buildBaseClass(mix, ctx);
-            var mixBaseSelector = '.' + mixBaseClass;
-            var mixStrArr = modsToStrArr(mix, mixBaseClass, mixBaseSelector);
+            var mixEntityName = getEntityName(mix, ctx);
+            var mixEntitySelector = '.' + mixEntityName;
+            var mixStrArr = modsToStrArr(mix, mixEntityName, mixEntitySelector);
             mixPostfixes = mixPostfixes.concat(mixStrArr);
         });
 
@@ -135,8 +135,6 @@ modules.define('i-bem-dom', [
     var BemDomEntityInBlockProto = bemDom.Block.__parent.prototype;
     var BemDomEntityInElemProto = bemDom.Elem.__parent.prototype;
     var initEntity = bemDom._initEntity;
-
-    window.bemDom = bemDom;
 
     var extension = {
         _buildSelectorByQuery: buildSelector,
@@ -167,12 +165,12 @@ modules.define('i-bem-dom', [
 
         _queryEntities: function (select, query, onlyFirst) {
             var selector = buildSelector(query, this);
-            var baseClass = buildBaseClass(query, this);
+            var entityName = getEntityName(query, this);
             var domElems = this.domElem[select](selector);
 
             if (onlyFirst) {
                 return domElems[0] ?
-                    initEntity(baseClass, domElems.eq(0), undef, true)._setInitedMod() :
+                    initEntity(entityName, domElems.eq(0), undef, true)._setInitedMod() :
                         null;
             }
 
@@ -180,7 +178,7 @@ modules.define('i-bem-dom', [
             var uniqIds = {};
 
             domElems.each(function (i, domElem) {
-                var block = initEntity(baseClass, $(domElem), undef, true)._setInitedMod();
+                var block = initEntity(entityName, $(domElem), undef, true)._setInitedMod();
                 if (!uniqIds[block._uniqId]) {
                     uniqIds[block._uniqId] = true;
                     res.push(block);

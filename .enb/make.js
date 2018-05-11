@@ -33,6 +33,8 @@ const techs = {
     },
     enbBemTechs = require('enb-bem-techs'),
     levels = [
+        // { path: '../bem-core/common.blocks', check: false },
+        // { path: '../bem-core/desktop.blocks', check: false },
         { path: 'node_modules/bem-core/common.blocks', check: false },
         { path: 'node_modules/bem-core/desktop.blocks', check: false },
         { path: 'node_modules/bem-components/common.blocks', check: false },
