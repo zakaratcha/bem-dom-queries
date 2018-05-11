@@ -213,14 +213,54 @@ module.exports = {
                                 {
                                     block: 'test1',
                                     elem: 'el',
-                                    mix: {
-                                        block: 'testbox'
-                                    },
+                                    mix: [
+                                        {
+                                            block: 'testbox'
+                                        },
+                                        {
+                                            block: 'test3'
+                                        }
+                                    ],
                                     content: [
                                         {
                                             block: 'testbox',
                                             elem: 'title',
-                                            content: '.test1__el'
+                                            content: [
+                                                '.test1__el',
+                                                {tag: 'br'},
+                                                '.test3'
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    block: 'test1',
+                                    elem: 'el',
+                                    mix: [
+                                        {
+                                            block: 'testbox'
+                                        },
+                                        {
+                                            block: 'test3',
+                                            mods: {mod3: true}
+                                        },
+                                        {
+                                            block: 'test4'
+                                        }
+                                    ],
+                                    content: [
+                                        {
+                                            block: 'testbox',
+                                            elem: 'title',
+                                            content: [
+                                                '.test1__el',
+                                                {tag: 'br'},
+                                                '.test3',
+                                                {tag: 'br'},
+                                                '.test3_mod3',
+                                                {tag: 'br'},
+                                                '.test4'
+                                            ]
                                         }
                                     ]
                                 },
@@ -353,6 +393,42 @@ module.exports = {
                                 elem: 'item'
                             },
                             text: 'test1.findChilds({elem: Test1El, mods: {mod2: \'*\'}})'
+                        },
+                        {
+                            block: 'button',
+                            mods: {
+                                theme: 'islands',
+                                size: 'l'
+                            },
+                            mix: {
+                                block: 'pad',
+                                elem: 'item'
+                            },
+                            text: 'test1.findChilds({elem: \'el\', mix: Test3})'
+                        },
+                        {
+                            block: 'button',
+                            mods: {
+                                theme: 'islands',
+                                size: 'l'
+                            },
+                            mix: {
+                                block: 'pad',
+                                elem: 'item'
+                            },
+                            text: 'test1.findChilds({elem: \'el\', mix: {block: Test3, mods:{mod3: true}}})'
+                        },
+                        {
+                            block: 'button',
+                            mods: {
+                                theme: 'islands',
+                                size: 'l'
+                            },
+                            mix: {
+                                block: 'pad',
+                                elem: 'item'
+                            },
+                            text: 'test1.findChilds({elem: \'el\', mix: [Test3, Test4]})'
                         }
 
                     ]

@@ -1,4 +1,6 @@
 .pad .button
 {
+    font-family: 'Courier New', Courier, monospace;
+
     margin: 0 8px 8px 0;
 }

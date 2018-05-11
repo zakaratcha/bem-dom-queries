@@ -8,7 +8,7 @@ modules.define('testbox', [
                     var _this = this;
                     setTimeout(function () {
                         _this.delMod('found');
-                    }, 500);
+                    }, 700);
                 }
             }
         }
