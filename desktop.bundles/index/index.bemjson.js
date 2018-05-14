@@ -416,7 +416,7 @@ module.exports = {
                                 block: 'pad',
                                 elem: 'item'
                             },
-                            text: 'test1.findChilds({elem: \'el\', mix: {block: Test3, mods:{mod3: true}}})'
+                            text: 'test1.findChilds({elem: \'el\', mix: {block: Test3, mods: {mod3: true}}})'
                         },
                         {
                             block: 'button',
