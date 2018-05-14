@@ -35,7 +35,7 @@ modules.define('pad', [
                         }
 
                         found.forEach(function (item) {
-                            item.findMix(Testbox).setMod('found');
+                            item.findMix(Testbox).fire();
                         });
                     });
                 }

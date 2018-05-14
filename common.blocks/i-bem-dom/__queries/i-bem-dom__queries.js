@@ -54,7 +54,6 @@ modules.define('i-bem-dom', [
         var modsArr = [];
         var postfixes = [];
 
-        // TODO: mods & elemMods
         if (query.mods) {
             Object.keys(query.mods).forEach(function (modName) {
                 if (Array.isArray(query.mods[modName])) {
