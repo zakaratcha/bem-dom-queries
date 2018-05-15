@@ -172,7 +172,9 @@
     mix: [
         {
             block: Button,
-            mods: {disabled: false},
+            mods: {
+                disabled: false
+            },
         },
         Widget
     ]
