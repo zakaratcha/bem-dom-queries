@@ -296,7 +296,7 @@ module.exports = {
                                 block: 'pad',
                                 elem: 'item'
                             },
-                            text: 'test1.findParent(Test0)'
+                            text: 'test1.queryParent(Test0)'
                         },
                         {
                             block: 'button',
@@ -308,7 +308,7 @@ module.exports = {
                                 block: 'pad',
                                 elem: 'item'
                             },
-                            text: 'test1.findMix(Test1)'
+                            text: 'test1.queryMix(Test1)'
                         },
                         {
                             block: 'button',
@@ -320,7 +320,7 @@ module.exports = {
                                 block: 'pad',
                                 elem: 'item'
                             },
-                            text: 'test1.findChild(Test2)'
+                            text: 'test1.queryChild(Test2)'
                         },
                         {
                             block: 'button',
@@ -332,7 +332,7 @@ module.exports = {
                                 block: 'pad',
                                 elem: 'item'
                             },
-                            text: 'test1.findChild(\'el\')'
+                            text: 'test1.queryChild(\'el\')'
                         },
                         {
                             block: 'button',
@@ -344,7 +344,7 @@ module.exports = {
                                 block: 'pad',
                                 elem: 'item'
                             },
-                            text: 'test1.findChilds(\'el\')'
+                            text: 'test1.queryChilds(\'el\')'
                         },
                         {
                             block: 'button',
@@ -356,7 +356,7 @@ module.exports = {
                                 block: 'pad',
                                 elem: 'item'
                             },
-                            text: 'test1.findChilds({elem: \'el\', mods: {first: true}})'
+                            text: 'test1.queryChilds({elem: \'el\', mods: {first: true}})'
                         },
                         {
                             block: 'button',
@@ -368,7 +368,7 @@ module.exports = {
                                 block: 'pad',
                                 elem: 'item'
                             },
-                            text: 'test1.findChilds({elem: \'el\', mods: {first: false}})'
+                            text: 'test1.queryChilds({elem: \'el\', mods: {first: false}})'
                         },
                         {
                             block: 'button',
@@ -380,7 +380,7 @@ module.exports = {
                                 block: 'pad',
                                 elem: 'item'
                             },
-                            text: 'test1.findChilds({elem: \'el\', mods: {mod1: [\'val1\', \'val2\']}})'
+                            text: 'test1.queryChilds({elem: \'el\', mods: {mod1: [\'val1\', \'val2\']}})'
                         },
                         {
                             block: 'button',
@@ -392,7 +392,7 @@ module.exports = {
                                 block: 'pad',
                                 elem: 'item'
                             },
-                            text: 'test1.findChilds({elem: Test1El, mods: {mod2: \'*\'}})'
+                            text: 'test1.queryChilds({elem: Test1El, mods: {mod2: \'*\'}})'
                         },
                         {
                             block: 'button',
@@ -404,7 +404,7 @@ module.exports = {
                                 block: 'pad',
                                 elem: 'item'
                             },
-                            text: 'test1.findChilds({elem: \'el\', mix: Test3})'
+                            text: 'test1.queryChilds({elem: \'el\', mix: Test3})'
                         },
                         {
                             block: 'button',
@@ -416,7 +416,7 @@ module.exports = {
                                 block: 'pad',
                                 elem: 'item'
                             },
-                            text: 'test1.findChilds({elem: \'el\', mix: {block: Test3, mods: {mod3: true}}})'
+                            text: 'test1.queryChilds({elem: \'el\', mix: {block: Test3, mods: {mod3: true}}})'
                         },
                         {
                             block: 'button',
@@ -428,7 +428,7 @@ module.exports = {
                                 block: 'pad',
                                 elem: 'item'
                             },
-                            text: 'test1.findChilds({elem: \'el\', mix: [Test3, Test4]})'
+                            text: 'test1.queryChilds({elem: \'el\', mix: [Test3, Test4]})'
                         }
 
                     ]

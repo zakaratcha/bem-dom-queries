@@ -27,7 +27,7 @@ modules.define('pad', [
                 inited: function () {
                     this._events(Button).on('click', function (e) {
                         var text = e.bemTarget.getText();
-                        var test1 = this.findParent(Content).findChild(Test1);
+                        var test1 = this.queryParent(Content).queryChild(Test1);
                         var found = eval(text);
 
                         if (!found.size) {
@@ -35,7 +35,7 @@ modules.define('pad', [
                         }
 
                         found.forEach(function (item) {
-                            item.findMix(Testbox).fire();
+                            item.queryMix(Testbox).fire();
                         });
                     });
                 }

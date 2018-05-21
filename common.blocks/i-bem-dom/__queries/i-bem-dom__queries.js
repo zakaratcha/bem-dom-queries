@@ -138,27 +138,27 @@ modules.define('i-bem-dom', [
     var extension = {
         _buildSelectorByQuery: buildSelector,
 
-        findChild: function (query) {
+        queryChild: function (query) {
             return this._queryEntities('find', query, true);
         },
 
-        findChilds: function (query) {
+        queryChilds: function (query) {
             return this._queryEntities('find', query, false);
         },
 
-        findParent: function (query) {
+        queryParent: function (query) {
             return this._queryEntities('parents', query, true);
         },
 
-        findParents: function (query) {
+        queryParents: function (query) {
             return this._queryEntities('parents', query, false);
         },
 
-        findMix: function (query) {
+        queryMix: function (query) {
             return this._queryEntities('filter', query, true);
         },
 
-        findMixes: function (query) {
+        queryMixes: function (query) {
             return this._queryEntities('filter', query, false);
         },
 

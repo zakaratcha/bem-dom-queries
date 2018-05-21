@@ -1,16 +1,15 @@
 Проект находится в очень ранней стадии разработки, для реальных проектов пока не годится.
+
 Документация еще в стадии написания.
 
-Набор методов для экземпляров BemDomEntity для поиска блоков и элементов в DOM дереве.
+Набор методов для экземпляров BemDomEntity для поиска блоков и элементов в DOM дереве:
 
-Вместо `findChildBlock`, `findChildBlocks`, `findChildElem`, `findChildElems`, `findParentBlock`, `findParentBlocks`, `findParentElem`, `findParentElems`, `findMixedBlock`, `findMixedBlocks`, `findMixedElem`, `findMixedElems` предлагается более короткий список методов с более гибким API.
-
-- `.findChild`
-- `.findChilds`
-- `.findParent`
-- `.findParents`
-- `.findMix`
-- `.findMixes`
+- `.queryChild`
+- `.queryChilds`
+- `.queryParent`
+- `.queryParents`
+- `.queryMix`
+- `.queryMixes`
 
 Примеры синтаксиса:
 
@@ -26,7 +25,7 @@
             <pre>this.findChildElem('el');</pre>
         </td>
         <td>
-            <pre>this.findChild('el');</pre>
+            <pre>this.queryChild('el');</pre>
         </td>
     </tr>
     <tr>
@@ -35,7 +34,7 @@
             <pre>this.findParentBlock(Form);</pre>
         </td>
         <td>
-            <pre>this.findParent(Form);</pre>
+            <pre>this.queryParent(Form);</pre>
         </td>
     </tr>
     <tr>
@@ -44,7 +43,7 @@
             <pre>this.findMixedBlock(Form);</pre>
         </td>
         <td>
-            <pre>this.findMix(Form);</pre>
+            <pre>this.queryMix(Form);</pre>
         </td>
     </tr>
     <tr>
@@ -57,7 +56,7 @@
 });</pre>
         </td>
         <td>
-            <pre>this.findChild({
+            <pre>this.queryChild({
     elem: 'el',
     mods: {mod1: 'val1'}
 });</pre>
@@ -71,11 +70,11 @@
 });</pre>
         </td>
         <td>
-            <pre>this.findChild({
+            <pre>this.queryChild({
     elem: 'el',
     mods: {mod1: ''}
 });</pre> или
-            <pre>this.findChild({
+            <pre>this.queryChild({
     elem: 'el',
     mods: {mod1: false}
 });</pre>
@@ -89,7 +88,7 @@
 });</pre>
         </td>
         <td>
-            <pre>this.findChild({
+            <pre>this.queryChild({
     elem: 'el',
     mods: {mod1: '*'}
 });</pre>
@@ -104,7 +103,7 @@
 });</pre>
         </td>
         <td>
-            <pre>this.findChilds({
+            <pre>this.queryChilds({
     elem: 'el',
     mods: {
         mod1: ['val1', 'val2']
@@ -127,7 +126,7 @@
 });</pre>
         </td>
         <td>
-            <pre>this.findChild({
+            <pre>this.queryChild({
     elem: 'el',
     mods: {
         mod1: ['val1', 'val2'],
@@ -145,7 +144,7 @@
     .findMixedBlock(Button);</pre>
         </td>
         <td>
-            <pre>this.findChild({
+            <pre>this.queryChild({
     block: Button,
     mix: {elem: 'control'}
 });</pre>
@@ -166,7 +165,7 @@
 })</pre>
         </td>
         <td>
-            <pre>this.findChilds({
+            <pre>this.queryChilds({
     elem: 'control',
     mods: {type: 'button'},
     mix: [
@@ -183,6 +182,6 @@
     </tr>
 </table>
 
-Из примеров видно, что <code>bem-dom-queries</code> позволяет выражать довольно сложные запросы к DOM в простой и наглядной декларативной форме.
+Примеры довольно синтетические, но из видно, что <code>bem-dom-queries</code> позволяет выражать даже довольно сложные запросы к DOM в простой и наглядной декларативной форме.
 
 Демо: https://zakaratcha.github.io/bem-dom-queries/
